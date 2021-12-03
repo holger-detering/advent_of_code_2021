@@ -35,12 +35,11 @@ auto count_measurements(Measurements const& measurements)
     std::vector<std::pair<int, int>> pairs;
     pairs.reserve(measurements.size() - 1);
 
-    std::transform(std::next(measurements.cbegin()), measurements.cend(), measurements.cbegin(),
-                   std::back_inserter(pairs), [](int i, int j) { return std::make_pair(j, i); });
+    std::transform(measurements.cbegin(), measurements.cend() - 1, measurements.cbegin() + 1,
+                   std::back_inserter(pairs), [](int i, int j) { return std::make_pair(i, j); });
     return std::count_if(pairs.cbegin(), pairs.cend(),
                          [](std::pair<int, int> elem) { return elem.first < elem.second; });
 }
-
 } // namespace
 
 int main(int argc, char* argv[])

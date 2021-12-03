@@ -62,8 +62,14 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    std::cout << "**************\n"
+              << "Advent of code\n"
+              << "**************\n"
+              << "Day 1 (Sonar Sweep) - Part 1\n\n";
+
     auto const measurements = read_measurements_from_file(args[1]);
     if (!measurements.has_value()) return 1;
+
     std::cout << measurements.value().size() << " measurements read from file.\n";
 
     auto const solution = count_measurements(measurements.value());

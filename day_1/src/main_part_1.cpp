@@ -4,10 +4,14 @@
 #include <iostream>
 #include <iterator>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
+
+namespace rv = std::views;
+namespace rg = std::ranges;
 
 namespace
 {
@@ -33,12 +37,9 @@ MaybeMeasurements read_measurements_from_file(std::string_view file_path)
 auto count_measurements(Measurements const& measurements)
 {
     std::vector<std::pair<int, int>> pairs;
-    pairs.reserve(measurements.size() - 1);
-
-    std::transform(measurements.cbegin(), measurements.cend() - 1, measurements.cbegin() + 1,
-                   std::back_inserter(pairs), [](int i, int j) { return std::make_pair(i, j); });
-    return std::count_if(pairs.cbegin(), pairs.cend(),
-                         [](std::pair<int, int> elem) { return elem.first < elem.second; });
+    rg::transform(measurements, measurements | rv::drop(1), std::back_inserter(pairs),
+                  [](int i, int j) { return std::make_pair(i, j); });
+    return rg::count_if(pairs, [](std::pair<int, int> elem) { return elem.first < elem.second; });
 }
 } // namespace
 

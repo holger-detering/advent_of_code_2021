@@ -9,6 +9,11 @@
 #include <utility>
 #include <vector>
 
+#include <range/v3/all.hpp>
+
+namespace rg3 = ranges;
+namespace rv3 = ranges::views;
+
 namespace
 {
 void usage(std::string_view app_name) { std::cout << "Usage:\n  " << app_name << " file\n"; }
@@ -30,17 +35,18 @@ MaybeMeasurements read_measurements_from_file(std::string_view file_path)
     return measurements;
 }
 
-auto count_measurements(Measurements const& measurements)
+auto sum_up_three_sliding_window(Measurements const& measurements)
 {
-    std::vector<std::pair<int, int>> pairs;
-    pairs.reserve(measurements.size() - 1);
-
-    std::transform(std::next(measurements.cbegin()), measurements.cend(), measurements.cbegin(),
-                   std::back_inserter(pairs), [](int i, int j) { return std::make_pair(j, i); });
-    return std::count_if(pairs.cbegin(), pairs.cend(),
-                         [](std::pair<int, int> elem) { return elem.first < elem.second; });
+    return measurements | rv3::sliding(3) |
+           rv3::transform([](auto&& window) { return rg3::accumulate(window, 0); }) |
+           rg3::to<std::vector>();
 }
 
+auto count_measurements(Measurements const& measurements)
+{
+    return rg3::count_if(rv3::zip(measurements, measurements | rv3::drop(1)),
+                         [](auto&& pair) { return pair.first < pair.second; });
+}
 } // namespace
 
 int main(int argc, char* argv[])
@@ -72,6 +78,9 @@ int main(int argc, char* argv[])
 
     std::cout << measurements.value().size() << " measurements read from file.\n";
 
-    auto const solution = count_measurements(measurements.value());
+    auto const sliding_window = sum_up_three_sliding_window(measurements.value());
+    std::cout << "size of sliding window = " << sliding_window.size() << '\n';
+
+    auto const solution = count_measurements(sliding_window);
     std::cout << "The answer is: " << solution << '\n';
 }

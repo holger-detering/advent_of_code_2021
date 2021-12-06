@@ -127,6 +127,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    std::cout << "**************\n"
+              << "Advent of code\n"
+              << "**************\n"
+              << "Day 2 (Dive!) - Part 1\n\n";
+
     auto const commands = read_commands_from_file(args[1]);
     if (!commands.has_value()) return 1;
 
